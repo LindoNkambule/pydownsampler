@@ -22,6 +22,7 @@ Options:
 import warnings
 import os
 import sys
+import ntpath
 import pysam
 from docopt import docopt
 
@@ -32,7 +33,9 @@ def lengths(readinf):
         if len(reads) > 1000:
             break
         else:
-            reads.append(read.infer_read_length())
+            if read.infer_read_length() is not None:
+                # if CIGAR alignment is not present, infer_read_length will return None
+                reads.append(read.infer_read_length())
 
     return reads
 
@@ -89,7 +92,7 @@ def main():
         filext = os.path.splitext(file)[-1].lower()
 
         if not args['<output>']:
-            outfile = "Downsampled{}X_{}{}".format(downcov, os.path.splitext(file)[0], filext)
+            outfile = "Downsampled{}X_{}".format(downcov, ntpath.basename(file))
         else:
             outfile = "{}{}".format(args['<output>'], filext)
 
