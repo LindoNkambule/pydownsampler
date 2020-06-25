@@ -24,7 +24,7 @@ import os
 import sys
 import ntpath
 import pysam
-from docopt import docopt
+import docopt
 
 
 def lengths(readinf):
@@ -69,7 +69,7 @@ def getversion():
 
 def main():
     # arguments ----------------------------------------------------------------
-    args = docopt(__doc__)
+    args = docopt.docopt(__doc__)
 
     if args['--version']:
         getversion()
@@ -89,10 +89,11 @@ def main():
         readnum = 0
         genomelen = 0
 
-        filext = os.path.splitext(file)[-1].lower()
+        filename, filext = os.path.splitext(file)
 
         if not args['<output>']:
-            outfile = "Downsampled{}X_{}".format(downcov, ntpath.basename(file))
+            out = "{}.Downsampled{}X{}".format(filename, downcov, filext)
+            outfile = ntpath.basename(out)
         else:
             outfile = "{}{}".format(args['<output>'], filext)
 

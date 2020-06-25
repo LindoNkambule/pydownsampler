@@ -50,7 +50,7 @@ Examples
 
    # option 1 (default):
    $ pydownsampler input.bam -d 10
-   In the example above, the file 'input.bam' will be downsampled to 10X coverage. The output filename will be 'Downsampled10X_input.bam'.
+   In the example above, the file 'input.bam' will be downsampled to 10X coverage. The output filename will be 'input.Downsampled10X.bam'.
 
    # option 2 (optional):
    $ pydownsampler input.bam -d 10 -o downsampled
