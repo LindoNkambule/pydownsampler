@@ -3,6 +3,23 @@ from setuptools import setup, find_packages
 with open("README.rst", "r") as fh:
     long_description = fh.read()
 
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Environment :: Console',
+    'Intended Audience :: Science/Research'
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
+    'Operating System :: POSIX',
+    'Operating System :: Unix',
+    'Operating System :: MacOS'
+]
+
 setup(name='pydownsampler',
       version='1.0',
       author='Lindokuhle Nkambule',
@@ -18,11 +35,7 @@ setup(name='pydownsampler',
               'pydownsampler = pydownsampler.pydownsampler:main'
           ]
       },
-      classifiers=(
-          "Programming Language :: Python :: 3",
-          "License :: OSI Approved :: MIT License",
-          "Operating System :: OS Independent",
-      ),
+      classifiers=classifiers,
       keywords='',
       install_requires=['pysam', 'docopt'],
       zip_safe=False
