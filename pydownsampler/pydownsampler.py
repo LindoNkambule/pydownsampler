@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 """
 pydownsampler
 
@@ -27,6 +30,48 @@ import pysam
 import docopt
 
 
+class filxt:
+    def __init__(self, file):
+        self.file = file
+
+    def bam(self):
+        bamind1 = "{}.bai".format(self.file)
+        bamind2 = "{}.bai".format(os.path.splitext(self.file)[0])
+
+        # more error handling ------------------------------------------------------
+        if os.path.exists(bamind1) & (not os.path.exists(bamind2)):
+            bamind = bamind1
+        elif os.path.exists(bamind2) & (not os.path.exists(bamind1)):
+            bamind = bamind2
+        elif os.path.exists(bamind1) & os.path.exists(bamind2):
+            warnings.warn("Input BAM file has two index files. Index file {} will be used".format(bamind1))
+            bamind = bamind1
+        else:
+            raise Exception("Input BAM file {} is not indexed. Please index it and try again.".format(self.file))
+
+        # file stats ------------------------------------------------------------
+        stats = pysam.idxstats(self.file, index_filename=bamind)
+        info = pysam.AlignmentFile(self.file, index_filename=bamind)
+        return stats, info
+
+    def cram(self):
+        # file stats ------------------------------------------------------------
+        cramind = "{}.crai".format(os.path.splitext(self.file)[0])
+
+        if not os.path.exists(cramind):
+            raise Exception("Input CRAM file {} is not indexed. Please index it and try again.".format(self.file))
+
+        stats = pysam.idxstats(self.file, index_filename=cramind)
+        info = pysam.AlignmentFile(self.file, index_filename=cramind)
+        return stats, info
+
+    def sam(self):
+        # file stats ------------------------------------------------------------
+        stats = pysam.idxstats(self.file, index_filename=None)
+        info = pysam.AlignmentFile(self.file, index_filename=None)
+        return stats, info
+
+
 def lengths(readinf):
     reads = []
     for read in readinf.fetch():
@@ -41,6 +86,11 @@ def lengths(readinf):
 
 
 def averagerl(readlist):
+
+    # for files with less than 1000 reads
+    if len(readlist) < 1000:
+        raise Exception("Input file has less than 1000 reads")
+
     readlist.sort()
 
     # work out difference between second shortest and longest read lengths
@@ -83,11 +133,9 @@ def main():
             raise Exception("Failed to open '{}': No such file or directory.".format(args['<file>']))
 
         # variables ----------------------------------------------------------------
-        file = args['<file>']
-        downcov = args['<dcov>']
+        file, downcov = args['<file>'], args['<dcov>']
 
-        readnum = 0
-        genomelen = 0
+        readnum = genomelen = 0
 
         filename, filext = os.path.splitext(file)
 
@@ -97,39 +145,16 @@ def main():
         else:
             outfile = "{}{}".format(args['<output>'], filext)
 
+        # file extension and index information
+        filind = filxt(file)
         if filext == '.bam':
-            bamind1 = "{}.bai".format(file)
-            bamind2 = "{}.bai".format(os.path.splitext(file)[0])
-
-            # more error handling ------------------------------------------------------
-            if os.path.exists(bamind1) & (not os.path.exists(bamind2)):
-                bamind = bamind1
-            elif os.path.exists(bamind2) & (not os.path.exists(bamind1)):
-                bamind = bamind2
-            elif os.path.exists(bamind1) & os.path.exists(bamind2):
-                warnings.warn("Input BAM file has two index files. Index file {} will be used".format(bamind1))
-                bamind = bamind1
-            else:
-                raise Exception("Input BAM file {} is not indexed. Please index it and try again.".format(file))
-
-            # file stats ------------------------------------------------------------
-            file_stats = pysam.idxstats(file, index_filename=bamind)
-            readinfo = pysam.AlignmentFile(file, index_filename=bamind)
+            file_stats, readinfo = filind.bam()
 
         if filext == '.cram':
-            # file stats ------------------------------------------------------------
-            cramind = "{}.crai".format(os.path.splitext(file)[0])
-
-            if not os.path.exists(cramind):
-                raise Exception("Input CRAM file {} is not indexed. Please index it and try again.".format(file))
-
-            file_stats = pysam.idxstats(file, index_filename=cramind)
-            readinfo = pysam.AlignmentFile(file, index_filename=cramind)
+            file_stats, readinfo = filind.cram()
 
         if filext == '.sam':
-            # file stats ------------------------------------------------------------
-            file_stats = pysam.idxstats(file, index_filename=None)
-            readinfo = pysam.AlignmentFile(file, index_filename=None)
+            file_stats, readinfo = filind.sam()
 
         # read length --------------------------------------------------------------
         readlens = lengths(readinfo)
