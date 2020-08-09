@@ -51,24 +51,24 @@ class filxt:
 
         # file stats ------------------------------------------------------------
         stats = pysam.idxstats(self.file, index_filename=bamind)
-        info = pysam.AlignmentFile(self.file, index_filename=bamind)
+        info = pysam.AlignmentFile(self.file, "rb", index_filename=bamind)
         return stats, info
 
     def cram(self):
         # file stats ------------------------------------------------------------
-        cramind = "{}.crai".format(os.path.splitext(self.file)[0])
+        cramind = "{}.crai".format(self.file)
 
         if not os.path.exists(cramind):
             raise Exception("Input CRAM file {} is not indexed. Please index it and try again.".format(self.file))
 
         stats = pysam.idxstats(self.file, index_filename=cramind)
-        info = pysam.AlignmentFile(self.file, index_filename=cramind)
+        info = pysam.AlignmentFile(self.file, "rc", index_filename=cramind)
         return stats, info
 
     def sam(self):
         # file stats ------------------------------------------------------------
         stats = pysam.idxstats(self.file, index_filename=None)
-        info = pysam.AlignmentFile(self.file, index_filename=None)
+        info = pysam.AlignmentFile(self.file, "r", index_filename=None)
         return stats, info
 
 
@@ -193,8 +193,8 @@ def main():
             if int(downcov) > averagecov:
                 raise Exception("The desired coverage is higher than the average coverage")
 
-            if (averagecov - int(downcov)) <= 5:
-                raise Exception("The difference between the average coverage and desired coverage is too small (<= 5)")
+            if (averagecov - int(downcov)) <= 2:
+                raise Exception("The difference between the average coverage and desired coverage is too small (<= 2)")
 
             # print out some stats -----------------------------------------------------
             print("The average coverage is", averagecov)
