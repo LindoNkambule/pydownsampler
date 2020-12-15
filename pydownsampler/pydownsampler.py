@@ -150,10 +150,10 @@ def main():
         if filext == '.bam':
             file_stats, readinfo = filind.bam()
 
-        if filext == '.cram':
+        elif filext == '.cram':
             file_stats, readinfo = filind.cram()
 
-        if filext == '.sam':
+        else: # if filext == '.sam'
             file_stats, readinfo = filind.sam()
 
         # read length --------------------------------------------------------------
